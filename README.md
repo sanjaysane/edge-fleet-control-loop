@@ -87,3 +87,23 @@ kubectl get hpa -w
 ```
 
 See `docs/scaling.md` for capacity math: 10k devices @0.1 QPS = 1k RPS -> ~2-3 pods. HPA + onboarding workflow handles bursty joins.
+
+## Cost Estimate + One-Liner Deploy (Option 2)
+
+Real EKS test is **~$0.32 for 2-hr spot run**, ~$13 on-demand if you leave 3 days.
+
+See `docs/cost_estimate_eks.md` for table.
+
+One-liner deploy (after `aws sso login`):
+
+```bash
+./scripts/deploy_eks_one_liner.sh edge-fleet-test us-west-2
+# then:
+kubectl get hpa -w
+kubectl port-forward svc/control-plane 8000:8000 &
+python3 scale_test/harness.py --devices 500 --qps 0.2 --control http://localhost:8000
+# tear down:
+eksctl delete cluster --name edge-fleet-test --region us-west-2 --wait
+```
+
+Full options tracked in `scripts/deploy_eks_one_liner.sh`.
