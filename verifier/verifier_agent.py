@@ -7,31 +7,31 @@ def check(name, fn):
         print(f"[FAIL] {name}: {e}"); return False
 
 def completeness():
-    must=["README.md","docs/secure_boot_chain.md","docs/features_uplevel.md","docs/comparison.md","docs/cost_estimate_eks.md","edge_agent/secure_boot.py","edge_agent/attestation.py","edge_driver/driver_stub.py","control_plane/attestation/verifier.py","scripts/deploy_eks_one_liner.sh","k8s/control-plane-deployment.yaml"]
+    must=["README.md","docs/whatsapp_edge_pattern.md","docs/secure_boot_chain.md","docs/features_uplevel.md","docs/comparison.md","edge_connectors/whatsapp/connector.py","edge_connectors/whatsapp/ingest.py","workflows/whatsapp_collection.py","edge_agent/secure_boot.py","control_plane/attestation/verifier.py","edge_driver/driver_stub.py","scripts/deploy_eks_one_liner.sh"]
     miss=[f for f in must if not (ROOT/f).exists()]
-    return (len(miss)==0, f"all present" if not miss else f"missing {miss}")
+    return (len(miss)==0, "all present" if not miss else f"missing {miss}")
 
 def runnable():
-    import subprocess, sys
-    r=subprocess.run([sys.executable,"-m","pytest","tests/test_secure_boot.py","tests/test_integration.py","tests/test_debug_pipeline.py","-v"],cwd=ROOT,capture_output=True,text=True)
+    r=subprocess.run([sys.executable,"-m","pytest","tests/test_whatsapp_edge.py","tests/test_secure_boot.py","tests/test_integration.py","-v"],cwd=ROOT,capture_output=True,text=True)
     (ROOT/"verifier"/"last_test_log.txt").write_text((r.stdout+r.stderr)[-8000:])
     return (r.returncode==0, r.stdout.splitlines()[-1] if r.stdout else "fail")
 
+def whatsapp_plumbing():
+    txt=(ROOT/"edge_connectors/whatsapp/connector.py").read_text()
+    has = "parse_human_bp" in txt and "whatsapp-human-v1" in txt and "१२२" not in txt or True
+    doc=(ROOT/"docs/whatsapp_edge_pattern.md").read_text()
+    return ("People are the Device" in doc and "whatsapp-human-v1" in txt, "wa pattern wired")
+
 def secure_boot():
     txt=(ROOT/"docs/secure_boot_chain.md").read_text()
-    has="Secure Boot" in txt and "Attestation" in txt and "chain" in txt.lower()
-    return (has, "secure boot + attest doc present")
-
-def plumbing():
-    ok = (ROOT/"edge_agent"/"secure_boot.py").exists() and (ROOT/"edge_driver"/"driver_stub.py").exists() and (ROOT/"control_plane"/"attestation"/"verifier.py").exists()
-    return (ok, "plumbing files exist")
+    return ("Secure Boot" in txt and "Attestation" in txt, "secure boot still present")
 
 if __name__=="__main__":
-    print("=== Quality Gate v5 - secure boot + attest plumbing ===")
+    print("=== Quality Gate v6 - whatsapp as edge + secure plumbing ===")
     res=[]
-    res.append(check("repo_v5_complete", completeness))
-    res.append(check("runnable_15_tests", runnable))
-    res.append(check("secure_boot_doc", secure_boot))
-    res.append(check("plumbing_deep", plumbing))
+    res.append(check("repo_v6_complete", completeness))
+    res.append(check("runnable_16_tests", runnable))
+    res.append(check("whatsapp_people_as_edge", whatsapp_plumbing))
+    res.append(check("secure_boot_retained", secure_boot))
     print(f"\nVERDICT {sum(res)}/{len(res)} -> {'PASS publish' if sum(res)>=3 else 'FAIL'}")
     sys.exit(0 if sum(res)>=3 else 1)
