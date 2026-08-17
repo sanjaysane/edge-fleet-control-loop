@@ -1,0 +1,11 @@
+# On-call rotation sim - in real pod use PagerDuty schedule API
+schedule:
+  - name: "Sanjay Sane"
+    email: "sanesanjay@gmail.com"
+    primary: true
+    phone: "+15103007172"
+  - name: "Edge SRE Secondary"
+    email: "edge-sre@yourorg.com"
+    primary: false
+escalation_min: 15
+webhook_url: "http://localhost:8081/oncall/page"

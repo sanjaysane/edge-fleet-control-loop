@@ -3,16 +3,19 @@ platform linux -- Python 3.12.3, pytest-9.1.1, pluggy-1.6.0 -- /usr/bin/python3
 cachedir: .pytest_cache
 rootdir: /home/hatch/workspace/goals/explore-interests/files/edge-fleet-control-loop
 plugins: logfire-4.40.0, anyio-4.14.2
-collecting ... collected 9 items
+collecting ... collected 12 items
 
-tests/test_debug_pipeline.py::test_debug_and_data_isolation PASSED       [ 11%]
-tests/test_debug_pipeline.py::test_blocked_version_cannot_full_rollout PASSED [ 22%]
-tests/test_edge_buffer.py::test_spool_file_format PASSED                 [ 33%]
-tests/test_integration.py::test_heartbeat_and_desired PASSED             [ 44%]
-tests/test_integration.py::test_telemetry_ingest_and_lake PASSED         [ 55%]
-tests/test_integration.py::test_rollout_assigns_desired PASSED           [ 66%]
-tests/test_integration.py::test_fleet_health PASSED                      [ 77%]
-tests/test_integration.py::test_ota_reconciliation_sim PASSED            [ 88%]
+tests/test_debug_pipeline.py::test_debug_and_data_isolation PASSED       [  8%]
+tests/test_debug_pipeline.py::test_blocked_version_cannot_full_rollout PASSED [ 16%]
+tests/test_edge_buffer.py::test_spool_file_format PASSED                 [ 25%]
+tests/test_facet_uplevel.py::test_qos_lane_header_present PASSED         [ 33%]
+tests/test_facet_uplevel.py::test_data_pipeline_and_alerting_files_exist PASSED [ 41%]
+tests/test_facet_uplevel.py::test_dashboard_full_if_wired PASSED         [ 50%]
+tests/test_integration.py::test_heartbeat_and_desired PASSED             [ 58%]
+tests/test_integration.py::test_telemetry_ingest_and_lake PASSED         [ 66%]
+tests/test_integration.py::test_rollout_assigns_desired PASSED           [ 75%]
+tests/test_integration.py::test_fleet_health PASSED                      [ 83%]
+tests/test_integration.py::test_ota_reconciliation_sim PASSED            [ 91%]
 tests/test_scale.py::test_scale_smoke PASSED                             [100%]
 
 =============================== warnings summary ===============================
@@ -21,4 +24,4 @@ tests/test_scale.py::test_scale_smoke PASSED                             [100%]
     from starlette.testclient import TestClient as TestClient  # noqa
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-========================= 9 passed, 1 warning in 0.58s =========================
+======================== 12 passed, 1 warning in 0.62s =========================

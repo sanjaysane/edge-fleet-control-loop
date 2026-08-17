@@ -4,6 +4,14 @@ import os, json, time, pathlib
 from typing import Dict, Any
 from collections import deque
 
+try:
+    from qos.lanes import qos_middleware as _qos_mw
+    from resilience.circuit import lake_breaker, debug_breaker
+    _QOS_AVAILABLE=True
+except:
+    _QOS_AVAILABLE=False
+
+
 app = FastAPI(title="Edge Fleet Control Plane")
 
 DB_FILE = pathlib.Path("data/devices.json")
@@ -110,8 +118,13 @@ def ingest(t: Telemetry):
     day = time.strftime("%Y/%m/%d")
     p = LAKE_DIR / day / f"{t.device_id}.jsonl"
     p.parent.mkdir(parents=True, exist_ok=True)
-    with open(p, "a") as f:
-        f.write(json.dumps(t.model_dump() if hasattr(t,"model_dump") else t.dict())+"\n")
+    def _do():
+        with open(p, "a") as f:
+            f.write(json.dumps(t.model_dump() if hasattr(t,"model_dump") else t.dict())+"\n")
+    try:
+        _do() if not _QOS_AVAILABLE else lake_breaker.call(_do)
+    except Exception as e:
+        raise e
     return {"ok": True}
 
 @app.post("/api/v1/debug")
