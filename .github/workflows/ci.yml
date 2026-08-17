@@ -1,0 +1,20 @@
+name: Edge Fleet CI + Quality Gate
+on: [push, pull_request]
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install fastapi uvicorn requests pydantic pytest httpx
+      - name: Run integration tests
+        run: pytest tests/ -v
+      - name: Run Verifier Agent (second persona)
+        run: python verifier/verifier_agent.py
+      - name: Upload proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: verifier-log
+          path: verifier/last_test_log.txt
