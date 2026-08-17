@@ -194,3 +194,104 @@ def metrics():
 @app.get("/dashboard")
 def dash_page():
     return {"msg":"Use static dashboard - see dashboard/index.html"}
+
+@app.post("/api/v1/attest")
+def attest(token: dict):
+    try:
+        from attestation.verifier import verify_attest, quarantine
+        res=verify_attest(token, None)
+        if not res.get("ok"):
+            quarantine(token.get("device_id","unknown"), res.get("reason","bad"))
+            from fastapi.responses import JSONResponse
+            return JSONResponse(status_code=403, content=res)
+        return res
+    except Exception as e:
+        return {"ok":True,"reason":"verifier_missing","warn":str(e)}
+
+@app.post("/api/v1/whatsapp/ingest")
+def wa_ingest(msg: dict):
+    import sys, pathlib
+    sys.path.insert(0, str(pathlib.Path(__file__).parent.parent / "edge_connectors" / "whatsapp"))
+    from connector import ingest_reply
+    wid=msg.get("wa_id") or msg.get("phone") or "unknown"
+    text=msg.get("text","")
+    rec=ingest_reply(wid, text, msg.get("media"))
+    return {"ok": True, "device_id": rec["device_id"], "parsed": rec["payload"]["parsed"]}
+
+@app.get("/api/v1/whatsapp/desired/{wa_name}")
+def wa_desired_router(wa_name: str):
+    import sys, pathlib
+    sys.path.insert(0, str(pathlib.Path(__file__).parent.parent / "edge_connectors" / "whatsapp"))
+    from connector import simulate_desired
+    return simulate_desired(wa_name)
+
+@app.post("/api/v1/whatsapp/onboard")
+def wa_onboard(body: dict):
+    import json, time, hashlib, pathlib
+    wa=body.get("wa_name") or body.get("phone")
+    if not wa:
+        from fastapi.responses import JSONResponse
+        return JSONResponse(status_code=400, content={"error":"wa_name required"})
+    p=pathlib.Path("data/whatsapp_onboarded.json")
+    p.parent.mkdir(parents=True, exist_ok=True)
+    db=json.loads(p.read_text()) if p.exists() else {}
+    did="wa:"+hashlib.sha256(wa.encode()).hexdigest()[:12]
+    db[did]={"wa_name":wa,"onboarded_at":time.time(),"sku":"whatsapp-human-v1"}
+    p.write_text(json.dumps(db, indent=2))
+    return {"ok":True,"device_id":did,"onboarded":wa}
+
+@app.get("/api/v1/whatsapp/status/{wa_name}")
+def wa_status_route(wa_name: str):
+    import sys, pathlib
+    sys.path.insert(0, str(pathlib.Path(__file__).parent.parent / "edge_connectors" / "whatsapp"))
+    from interactive import personal_summary
+    return personal_summary(wa_name)
+
+@app.get("/api/v1/whatsapp/global")
+def wa_global_route():
+    import sys, pathlib
+    sys.path.insert(0, str(pathlib.Path(__file__).parent.parent / "edge_connectors" / "whatsapp"))
+    from interactive import _agg_global
+    return _agg_global(days=7)
+
+@app.post("/api/v1/whatsapp/command")
+def wa_command_route(body: dict):
+    import sys, pathlib
+    sys.path.insert(0, str(pathlib.Path(__file__).parent.parent / "edge_connectors" / "whatsapp"))
+    from interactive import handle_whatsapp_command
+    from connector import ingest_reply
+    wa=body.get("wa_name") or body.get("phone") or "unknown"
+    txtb=body.get("text","")
+    cmd_res=handle_whatsapp_command(wa, txtb)
+    if cmd_res:
+        return {"type":"command","reply":cmd_res}
+    else:
+        rec=ingest_reply(wa, txtb, body.get("media"))
+        return {"type":"data","ok":True,"device_id":rec["device_id"],"parsed":rec["payload"]["parsed"]}
+
+@app.get("/wa/{wa_name}/dash")
+def wa_dash_page_route(wa_name: str):
+    import sys, pathlib
+    sys.path.insert(0, str(pathlib.Path(__file__).parent.parent / "edge_connectors" / "whatsapp"))
+    from interactive import personal_summary, _agg_global
+    s=personal_summary(wa_name)
+    g=_agg_global()
+    last_sys = s.get("last",{}).get("sys_mmHg","-")
+    last_dia = s.get("last",{}).get("dia_mmHg","-")
+    cnt = s.get("count",0)
+    streak = s.get("streak_days",0)
+    trend = s.get("trend","-")
+    avg7 = s.get("avg_sys_last7","-")
+    g_cnt = g.get("count",0)
+    g_avg_sys = g.get("avg_sys","-")
+    g_avg_dia = g.get("avg_dia","-")
+    g_dev = g.get("devices_seen",0)
+    html = "<html><head><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><title>"+wa_name+" personal</title>"
+    html += "<style>body{font-family:system-ui;padding:16px;max-width:520px;margin:auto} .card{border:1px solid #ddd;border-radius:12px;padding:12px;margin:8px 0} .k{color:#666;font-size:12px} .big{font-size:24px;font-weight:700}</style>"
+    html += "</head><body><h2>"+wa_name+" - personal</h2>"
+    html += f"<div class=\"card\"><div class=k>last</div><div class=big>{last_sys}/{last_dia}</div><div>{cnt} readings - streak {streak}d - trend {trend}</div></div>"
+    html += f"<div class=\"card\"><div class=k>7-day avg sys</div><div class=big>{avg7}</div></div>"
+    html += f"<div class=\"card\"><div class=k>global last 7d (anon)</div>{g_cnt} readings, avg {g_avg_sys}/{g_avg_dia}, from {g_dev} devices</div>"
+    html += "<div class=k>type STATUS / GLOBAL in WhatsApp for refresh - same lake as hardware fleet</div></body></html>"
+    from fastapi.responses import HTMLResponse
+    return HTMLResponse(content=html)
