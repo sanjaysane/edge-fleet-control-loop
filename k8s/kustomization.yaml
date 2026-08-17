@@ -1,0 +1,7 @@
+resources:
+- control-plane-deployment.yaml
+- service.yaml
+- hpa.yaml
+- log-processor.yaml
+commonLabels:
+  managed-by: edge-fleet

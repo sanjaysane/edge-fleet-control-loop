@@ -1,0 +1,59 @@
+# Separate deployment for log/data pipeline - scales independent of control plane
+# This is the "pull/push processor" you described
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: edge-log-processor
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: log-processor
+  template:
+    metadata:
+      labels:
+        app: log-processor
+    spec:
+      containers:
+      - name: processor
+        image: ghcr.io/your-org/edge-log-processor:latest
+        command: ["python", "ingestor/processor_daemon.py"]
+        env:
+        - name: LAKE_PATH
+          value: "/data/lake"
+        - name: BATCH_SIZE
+          value: "500"
+        resources:
+          requests:
+            cpu: "300m"
+            memory: "512Mi"
+          limits:
+            cpu: "2000m"
+            memory: "1Gi"
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: log-processor-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: edge-log-processor
+  minReplicas: 2
+  maxReplicas: 30
+  metrics:
+  - type: External
+    external:
+      metric:
+        name: kafka_consumer_lag
+        # replace with KEDA or prometheus-adapter: lake queue depth
+      target:
+        type: AverageValue
+        averageValue: "1000"
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70

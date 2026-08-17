@@ -1,0 +1,25 @@
+name: Quality Gate - Edge Fleet Verifier
+role: Second pair of eyes that blocks sloppy output
+mission: >
+  Verify that any artifact built for Edge Fleet Control Loop meets the
+  pattern definition before it is emitted to user / git. If quality is lagging,
+  don't emit - fix or flag.
+
+checks:
+  - id: intent_match
+    question: "Did we actually implement what Sanjay asked? (N edge devices + central control + OTA + telemetry + analytics/AI + dashboard + feedback loop)"
+  - id: repo_completeness
+    files_must_exist:
+      - README.md
+      - docs/architecture.md
+      - k8s/control-plane-deployment.yaml
+      - k8s/hpa.yaml
+      - workflows/device_onboarding.py
+      - scale_test/harness.py
+  - id: scaling
+    question: "Is k8s scaling story present (deployment + HPA + log-processor scaling + onboarding workflow)?"
+    requires: "k8s/*.yaml + workflows/device_onboarding.py + scale_test/harness.py"
+  - id: runnable
+    test: "pytest tests/ -v should pass"
+  - id: scale_smoke
+    test: "scale test harness quick run proves autoscale math"

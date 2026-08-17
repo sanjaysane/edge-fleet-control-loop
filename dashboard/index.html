@@ -1,0 +1,16 @@
+<!doctype html>
+<html><head><meta charset=utf-8><title>Fleet Dashboard</title>
+<style>body{font-family:system-ui;background:#0f1115;color:#e6e6e6;padding:24px} .card{background:#171a21;border-radius:12px;padding:16px;margin:12px 0} pre{white-space:pre-wrap}</style>
+</head><body>
+<h2>Edge Fleet - Live</h2>
+<div id=status class=card>loading...</div>
+<div id=roll class=card>rollouts...</div>
+<script>
+async function tick(){
+  let r = await fetch('/api/v1/fleet/health'); let j = await r.json();
+  document.getElementById('status').innerHTML = `<b>Total:</b> ${j.total} <b>Online:</b> ${j.online}<br><pre>${JSON.stringify(j.by_fw,null,2)}</pre>`;
+  document.getElementById('roll').innerHTML = `<pre>${JSON.stringify(j.rollouts,null,2)}</pre>`;
+}
+setInterval(tick,2000); tick();
+</script>
+</body></html>

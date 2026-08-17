@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: edge-control-svc
+spec:
+  selector:
+    app: edge-control
+  ports:
+  - port: 80
+    targetPort: 8000
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: edge-control-metrics
+  annotations:
+    prometheus.io/scrape: "true"
+spec:
+  selector:
+    app: edge-control
+  ports:
+  - name: metrics
+    port: 9090
+    targetPort: 8000
