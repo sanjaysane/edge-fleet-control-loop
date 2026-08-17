@@ -3,23 +3,32 @@ platform linux -- Python 3.12.3, pytest-9.1.1, pluggy-1.6.0 -- /usr/bin/python3
 cachedir: .pytest_cache
 rootdir: /home/hatch/workspace/goals/explore-interests/files/edge-fleet-control-loop
 plugins: logfire-4.40.0, anyio-4.14.2
-collecting ... collected 16 items
+collecting ... collected 25 items
 
-tests/test_whatsapp_edge.py::test_wa_device_id_stable PASSED             [  6%]
-tests/test_whatsapp_edge.py::test_parse_marathi_numerals PASSED          [ 12%]
-tests/test_whatsapp_edge.py::test_parse_english PASSED                   [ 18%]
-tests/test_whatsapp_edge.py::test_simulate_desired_has_marathi PASSED    [ 25%]
-tests/test_whatsapp_edge.py::test_ingest_writes_lake PASSED              [ 31%]
-tests/test_whatsapp_edge.py::test_whatsapp_pattern_doc_exists PASSED     [ 37%]
-tests/test_secure_boot.py::test_secure_boot_sign_verify_roundtrip PASSED [ 43%]
-tests/test_secure_boot.py::test_secure_boot_fail_tamper PASSED           [ 50%]
-tests/test_secure_boot.py::test_attestation_measurement_and_token PASSED [ 56%]
-tests/test_secure_boot.py::test_driver_stub_interface PASSED             [ 62%]
-tests/test_secure_boot.py::test_verifier_allow_logic PASSED              [ 68%]
-tests/test_integration.py::test_heartbeat_and_desired PASSED             [ 75%]
-tests/test_integration.py::test_telemetry_ingest_and_lake PASSED         [ 81%]
-tests/test_integration.py::test_rollout_assigns_desired PASSED           [ 87%]
-tests/test_integration.py::test_fleet_health PASSED                      [ 93%]
+tests/test_whatsapp_onboarding.py::test_intent PASSED                    [  4%]
+tests/test_whatsapp_onboarding.py::test_onboard_welcome_then_status PASSED [  8%]
+tests/test_whatsapp_onboarding.py::test_parity_doc PASSED                [ 12%]
+tests/test_whatsapp_onboarding.py::test_onboarding_file_shape PASSED     [ 16%]
+tests/test_whatsapp_interactive.py::test_command_status_returns_text PASSED [ 20%]
+tests/test_whatsapp_interactive.py::test_global_anonymized PASSED        [ 24%]
+tests/test_whatsapp_interactive.py::test_help_lists PASSED               [ 28%]
+tests/test_whatsapp_interactive.py::test_bp_parse_is_not_command PASSED  [ 32%]
+tests/test_whatsapp_interactive.py::test_personal_summary_shape PASSED   [ 36%]
+tests/test_whatsapp_edge.py::test_wa_device_id_stable PASSED             [ 40%]
+tests/test_whatsapp_edge.py::test_parse_marathi_numerals PASSED          [ 44%]
+tests/test_whatsapp_edge.py::test_parse_english PASSED                   [ 48%]
+tests/test_whatsapp_edge.py::test_simulate_desired_has_marathi PASSED    [ 52%]
+tests/test_whatsapp_edge.py::test_ingest_writes_lake PASSED              [ 56%]
+tests/test_whatsapp_edge.py::test_whatsapp_pattern_doc_exists PASSED     [ 60%]
+tests/test_secure_boot.py::test_secure_boot_sign_verify_roundtrip PASSED [ 64%]
+tests/test_secure_boot.py::test_secure_boot_fail_tamper PASSED           [ 68%]
+tests/test_secure_boot.py::test_attestation_measurement_and_token PASSED [ 72%]
+tests/test_secure_boot.py::test_driver_stub_interface PASSED             [ 76%]
+tests/test_secure_boot.py::test_verifier_allow_logic PASSED              [ 80%]
+tests/test_integration.py::test_heartbeat_and_desired PASSED             [ 84%]
+tests/test_integration.py::test_telemetry_ingest_and_lake PASSED         [ 88%]
+tests/test_integration.py::test_rollout_assigns_desired PASSED           [ 92%]
+tests/test_integration.py::test_fleet_health PASSED                      [ 96%]
 tests/test_integration.py::test_ota_reconciliation_sim PASSED            [100%]
 
 =============================== warnings summary ===============================
@@ -28,4 +37,4 @@ tests/test_integration.py::test_ota_reconciliation_sim PASSED            [100%]
     from starlette.testclient import TestClient as TestClient  # noqa
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-======================== 16 passed, 1 warning in 0.59s =========================
+======================== 25 passed, 1 warning in 0.61s =========================

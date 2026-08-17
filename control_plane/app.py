@@ -256,8 +256,18 @@ def wa_global_route():
 
 @app.post("/api/v1/whatsapp/command")
 def wa_command_route(body: dict):
-    import sys, pathlib
+    import sys, pathlib, json
     sys.path.insert(0, str(pathlib.Path(__file__).parent.parent / "edge_connectors" / "whatsapp"))
+    from onboarding import handle_inbound
+    wa=body.get("wa_name") or body.get("phone") or "unknown"
+    text=body.get("text","")
+    inbound=handle_inbound(wa, text, dry_run=True)
+    if inbound["type"] in ("welcome","need_onboard"):
+        return {"type":inbound["type"],"reply":inbound["reply"]}
+    if inbound["type"]=="command":
+        return {"type":"command","reply":inbound["reply"]}
+    if inbound["type"]=="data":
+        return {"type":"data","ok":True,"device_id":inbound.get("device_id"),"parsed":inbound.get("parsed")}
     from interactive import handle_whatsapp_command
     from connector import ingest_reply
     wa=body.get("wa_name") or body.get("phone") or "unknown"
