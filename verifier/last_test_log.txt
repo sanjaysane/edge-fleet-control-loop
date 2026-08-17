@@ -3,14 +3,16 @@ platform linux -- Python 3.12.3, pytest-9.1.1, pluggy-1.6.0 -- /usr/bin/python3
 cachedir: .pytest_cache
 rootdir: /home/hatch/workspace/goals/explore-interests/files/edge-fleet-control-loop
 plugins: logfire-4.40.0, anyio-4.14.2
-collecting ... collected 7 items
+collecting ... collected 9 items
 
-tests/test_edge_buffer.py::test_spool_file_format PASSED                 [ 14%]
-tests/test_integration.py::test_heartbeat_and_desired PASSED             [ 28%]
-tests/test_integration.py::test_telemetry_ingest_and_lake PASSED         [ 42%]
-tests/test_integration.py::test_rollout_assigns_desired PASSED           [ 57%]
-tests/test_integration.py::test_fleet_health PASSED                      [ 71%]
-tests/test_integration.py::test_ota_reconciliation_sim PASSED            [ 85%]
+tests/test_debug_pipeline.py::test_debug_and_data_isolation PASSED       [ 11%]
+tests/test_debug_pipeline.py::test_blocked_version_cannot_full_rollout PASSED [ 22%]
+tests/test_edge_buffer.py::test_spool_file_format PASSED                 [ 33%]
+tests/test_integration.py::test_heartbeat_and_desired PASSED             [ 44%]
+tests/test_integration.py::test_telemetry_ingest_and_lake PASSED         [ 55%]
+tests/test_integration.py::test_rollout_assigns_desired PASSED           [ 66%]
+tests/test_integration.py::test_fleet_health PASSED                      [ 77%]
+tests/test_integration.py::test_ota_reconciliation_sim PASSED            [ 88%]
 tests/test_scale.py::test_scale_smoke PASSED                             [100%]
 
 =============================== warnings summary ===============================
@@ -18,14 +20,5 @@ tests/test_scale.py::test_scale_smoke PASSED                             [100%]
   /usr/local/lib/python3.12/dist-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
     from starlette.testclient import TestClient as TestClient  # noqa
 
-tests/test_integration.py::test_telemetry_ingest_and_lake
-  /home/hatch/workspace/goals/explore-interests/files/edge-fleet-control-loop/control_plane/app.py:98: PydanticDeprecatedSince20: The `dict` method is deprecated; use `model_dump` instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
-    f.write(json.dumps(t.dict())+"\n")
-
-tests/test_integration.py::test_rollout_assigns_desired
-tests/test_integration.py::test_ota_reconciliation_sim
-  /home/hatch/workspace/goals/explore-interests/files/edge-fleet-control-loop/control_plane/app.py:103: PydanticDeprecatedSince20: The `dict` method is deprecated; use `model_dump` instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
-    db["rollouts"].append(r.dict())
-
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-======================== 7 passed, 4 warnings in 0.61s =========================
+========================= 9 passed, 1 warning in 0.58s =========================
